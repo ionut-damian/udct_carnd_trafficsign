@@ -81,13 +81,13 @@ To train the model I built a training pipeline using a softmax with cross entrop
 #### 4. Describe the approach taken for finding a solution and getting the validation set accuracy to be at least 0.93. Include in the discussion the results on the training, validation and test sets and where in the code these were calculated. Your approach may have been an iterative process, in which case, outline the steps you took to get to the final solution and why you chose those steps. Perhaps your solution involved an already well known implementation or architecture. In this case, discuss why you think the architecture is suitable for the current problem.
 
 My final model results were:
-* training set accuracy of **0.994** (computed in code cell "Train the model", line 25)
-* validation set accuracy of **0.967** (computed in code cell "Train the model", line 28)
-* test set accuracy of **0.950** (computed in code cell "Evaluation with test data", line 5)
+* training set accuracy of **0.997** (computed in code cell "Train the model", line 25)
+* validation set accuracy of **0.975** (computed in code cell "Train the model", line 28)
+* test set accuracy of **0.960** (computed in code cell "Evaluation with test data", line 5)
 
 I first started using the LeNet architecture which I adapted to the new input format. This yielded an initial validation accuracy of **0.88**.
 
-I then added some regularization techniques (dropout, L2-regularization) to make sure I was not overfitting. This yielded a small accuracy boost of roughly 1-2%.
+I then added some regularization techniques (0.5 dropout, L2-regularization) to make sure I was not overfitting. This yielded a small accuracy boost of roughly 1-2%.
 
 Next, I noticed the accuracy was increasing up until the last epoch. To make sure, the training would not stop until achieving full accuracy, I reduced the batch size to 64. This meant more batches and yielded another 2-3% accuracy on the validation set.
 
@@ -117,15 +117,13 @@ Here are the results of the prediction:
 | Image			        | ID |     Prediction	        	| ID |
 |:---------------------:|:--:|:----------------------------:|:--:|
 | Priority Road      	| 12 | Priority Road				| 12 |
-| Stop       			| 14 | Priority Road				| 12 |
-| Speed limit (70km/h)	|  4 | Speed limit (30km/h)			|  1 |
+| Stop       			| 14 | Stop         				| 14 |
+| Speed limit (70km/h)	|  4 | Roundabout mandatory			| 40 |
 | Children crossing 	| 28 | Children crossing 			| 28 |
 | Keep right			| 38 | Keep right       			| 38 |
 
 
-The model was able to correctly guess 3 of the 5 traffic signs, which gives an accuracy of 60%. This is an unexpected result since the test set accuracy was well above 95%.
-
-Particularly interesting si the misclassification of the stop sign, which should be very easy to recognize. However, the lack of color information could explain this. In fact, removing the grayscale conversion does lead to a better recognition of the stop sign (although in that case the children crossing sign gets misclassified).
+The model was able to correctly guess 4 of the 5 traffic signs, which gives an accuracy of 80%. This is a somewhat unexpected result since the test set accuracy was well above 95%.
 
 #### 3. Describe how certain the model is when predicting on each of the five new images by looking at the softmax probabilities for each prediction. Provide the top 5 softmax probabilities for each image along with the sign type of each probability. (OPTIONAL: as described in the "Stand Out Suggestions" part of the rubric, visualizations can also be provided such as bar charts)
 
@@ -133,51 +131,51 @@ For the first image (Priority Road), the model is very sure that this is a prior
 
 | Probability         	|     Prediction	    				| 
 |:---------------------:|:-------------------------------------:| 
-| .99         			| **Priority Road**						| 
+| 1.0         			| **Priority Road**						| 
 | <.01     				| Roundabout mandatory					|
-| <.01					| Speed limit (100km/h)					|
-| <.01	      			| End of no passing 					|
+| <.01					| Yield             					|
+| <.01	      			| Right-of-way at the next intersection	|
+| <.01				    | Speed limit (100km/h)         		|
+
+For the second image (Stop), the model correctly recognized the stop sign (probability of 0.86). The top five soft max probabilities were:
+
+| Probability         	|     Prediction	    				| 
+|:---------------------:|:-------------------------------------:| 
+| .86         			| **Stop**			        			| 
+| .05     				| Priority Road             			|
+| .01					| Speed limit (100km/h)					|
+| .01	      			| End of no passing 					|
 | <.01				    | Ahead only       	   		    		|
 
-For the second image (Stop), the model is confused about the sign. In fact, the best scoring class is the wrong one with a probability of 0.29. The correct class receives the second highest probability of 0.28. As mentioned above, this might be because of the lack of color information or the weird angle in which the photo was taken. The top five soft max probabilities were:
+For the third image (70km/h), the model is confused. The highest score receives the roundabout mandatory sign (probability of 0.32), however this is wrong. Even worse, the correct class is not even in the top 5. It is difficult to say why this is the case. One possibility is that the model rather learned the background than the sign itself, or that the image is somehow bad. The top five soft max probabilities were:
 
 | Probability         	|     Prediction	    				| 
 |:---------------------:|:-------------------------------------:| 
-| .29         			| Priority Road							| 
-| .28     				| **Stop**             					|
-| .07					| Speed limit (100km/h)					|
-| .05	      			| End of no passing 					|
-| .03				    | Ahead only       	   		    		|
-
-For the third image (70km/h), the model is relatively sure that this is a 30 km/h sign (probability of 0.74), however this is wrong. Even worse, the correct class is not even in the top 5. It is difficult to say why this is the case. One possibility is that the model rather learned the background than the sign itself. The top five soft max probabilities were:
-
-| Probability         	|     Prediction	    				| 
-|:---------------------:|:-------------------------------------:| 
-| .74         			| Speed limit (30km/h)   				| 
-| .06     				| General caution   					|
-| .03					| Wild animals crossing					|
-| .03	      			| Keep right         					|
-| .02				    | Right-of-way at the next intersection	|
+| .32         			| Roundabout mandatory   				| 
+| .29     				| Speed limit (30km/h) 					|
+| .16					| Speed limit (20km/h)					|
+| .04	      			| Stop               					|
+| .03				    | Priority road                     	|
 
 For the fourth image (Children crossing), the model correctly recognized the children crossing sign (probability of 0.87). The top five soft max probabilities were:
 
 | Probability         	|     Prediction	    				| 
 |:---------------------:|:-------------------------------------:| 
-| .87         			| **Children crossing**   				| 
-| .10     				| General caution   					|
-| <.01					| Dangerous curve to the right			|
-| <.01	      			| Keep right         					|
-| <.01				    | Speed limit (60km/h)              	|
+| .96         			| **Children crossing**   				| 
+| .02     				| Right-of-way at the next intersection	|
+| <.01					| End of all speed and passing limits   |
+| <.01	      			| Pedestrians         					|
+| <.01				    | Beware of ice/snow                  	|
 
 For the final image (keep right), the model correctly recognized the sign (probability of 1.0). The top five soft max probabilities were:
 
 | Probability         	|     Prediction	    				| 
 |:---------------------:|:-------------------------------------:| 
 | 1.0        			| **Keep right**       					|
-| <.01    				| Speed limit (50km/h)					|
-| <.01					| Yield                     			|
+| <.01    				| Yield             					|
+| <.01					| Stop                       			|
 | <.01	      			| Turn left ahead      					|
-| <.01				    | Bumpy road                        	|
+| <.01				    | Speed limit (30km/h)                 	|
 
 ### (Optional) Visualizing the Neural Network (See Step 4 of the Ipython notebook for more details)
 #### 1. Discuss the visual output of your trained network's feature maps. What characteristics did the neural network use to make classifications?
